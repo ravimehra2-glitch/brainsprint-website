@@ -2,6 +2,10 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { HeartPulse, Footprints, Flame, Brain, Focus, Zap } from "lucide-react";
 
+// Both paths are fully pre-drawn, static geometry. The morph is expressed
+// purely as an opacity crossfade — no stroke-dasharray/pathLength animation,
+// no per-frame SVG attribute mutation. See README "Android Chrome fix" notes
+// for why this replaced the previous pathLength-based implementation.
 const pulsePath = "M0,60 L40,60 L55,20 L70,100 L85,60 L100,60 L115,40 L130,60 L170,60";
 const trendPath = "M0,90 C40,85 60,70 90,55 C120,40 150,35 170,15";
 
@@ -54,7 +58,7 @@ export default function CognitiveFitness() {
                   initial={{ opacity: 0, x: -16 }}
                   animate={
                     inView
-                      ? { opacity: morphed ? 0.35 : 1, x: 0, scale: morphed ? 0.94 : 1 }
+                      ? { opacity: morphed ? 0.35 : 1, x: 0 }
                       : {}
                   }
                   transition={{ duration: 0.6, delay: 0.2 + i * 0.12 }}
@@ -75,25 +79,28 @@ export default function CognitiveFitness() {
 
           <div className="flex flex-col items-center">
             <svg viewBox="0 0 170 120" className="w-40 sm:w-48" aria-hidden="true">
-              <motion.path
+              {/* Static, fully-drawn geometry — only opacity is animated. */}
+              <path
                 d={pulsePath}
                 fill="none"
                 stroke="var(--color-gray-300)"
                 strokeWidth="2"
                 strokeLinecap="round"
-                initial={{ opacity: 1 }}
-                animate={inView && morphed ? { opacity: 0 } : {}}
-                transition={{ duration: 0.5 }}
+                style={{
+                  opacity: morphed ? 0 : 1,
+                  transition: "opacity 0.5s ease-out",
+                }}
               />
-              <motion.path
+              <path
                 d={trendPath}
                 fill="none"
                 stroke="var(--color-growth)"
                 strokeWidth="3"
                 strokeLinecap="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={inView && morphed ? { pathLength: 1, opacity: 1 } : {}}
-                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  opacity: inView && morphed ? 1 : 0,
+                  transition: "opacity 0.7s ease-out",
+                }}
               />
             </svg>
             <motion.span
@@ -112,19 +119,30 @@ export default function CognitiveFitness() {
               return (
                 <motion.div
                   key={m.label}
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={
-                    inView
-                      ? { opacity: morphed ? 1 : 0.35, x: 0, scale: morphed ? 1 : 0.94 }
-                      : {}
-                  }
+                  initial={{ x: 16 }}
+                  animate={{ x: inView ? 0 : 16 }}
                   transition={{ duration: 0.6, delay: 0.2 + i * 0.12 }}
-                  className="flex items-center gap-3 rounded-xl border border-[var(--color-growth-soft)]/50 bg-[var(--color-growth)]/[0.06] px-4 py-3"
                 >
-                  <Icon size={18} className="text-[var(--color-growth)]" strokeWidth={1.6} />
-                  <div>
-                    <p className="text-xs text-[var(--color-gray-500)]">{m.label}</p>
-                    <p className="tabular font-display text-sm text-[var(--color-gray-900)]">{m.value}</p>
+                  {/*
+                    Opacity lives on this plain, non-Framer element via a
+                    CSS class + transition, entirely separate from the
+                    `x` transform Framer controls above. Framer never
+                    touches `opacity` here, so there's no risk of its
+                    inline style silently overriding this class on
+                    Android — see README "Android Chrome fix #2".
+                    Colors are pre-flattened solids (no runtime alpha
+                    blending) for the same reason.
+                  */}
+                  <div
+                    className={`flex items-center gap-3 rounded-xl border border-[#bde6da] bg-[#edf3f0] px-4 py-3 transition-opacity duration-500 ${
+                      inView ? (morphed ? "opacity-100" : "opacity-35") : "opacity-0"
+                    }`}
+                  >
+                    <Icon size={18} className="text-[var(--color-growth)]" strokeWidth={1.6} />
+                    <div>
+                      <p className="text-xs text-[var(--color-gray-500)]">{m.label}</p>
+                      <p className="tabular font-display text-sm text-[var(--color-gray-900)]">{m.value}</p>
+                    </div>
                   </div>
                 </motion.div>
               );
