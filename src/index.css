@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0b0d10;
+  --color-ink-soft: #14171b;
+  --color-paper: #fafaf8;
+  --color-paper-dim: #f2f1ed;
+  --color-growth: #1f9e7a;
+  --color-growth-soft: #7fd4bb;
+  --color-focus: #5a5fe0;
+  --color-focus-soft: #b3b5f2;
+  --color-amber: #c98a3a;
+
+  --color-gray-50: #f7f7f5;
+  --color-gray-100: #ececea;
+  --color-gray-300: #c9c8c3;
+  --color-gray-500: #8f8d86;
+  --color-gray-700: #55534d;
+  --color-gray-900: #26251f;
+
+  --font-display: "Newsreader", Georgia, serif;
+  --font-body: "Inter", -apple-system, sans-serif;
+
+  --ease-confident: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--color-paper);
+  color: var(--color-gray-900);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--color-growth-soft); color: var(--color-ink); }
+
+.font-display { font-family: var(--font-display); }
+
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--color-growth);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+.grain { position: relative; }
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

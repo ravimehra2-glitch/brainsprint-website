@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>BrainSprint</title>
+    <script>
+      // Fallback for static hosts (e.g. GitHub Pages) that don't support
+      // SPA rewrites via _redirects/vercel.json. Redirects back to the
+      // app shell, preserving the requested path so React Router can
+      // render the correct page (or the 404 route) client-side.
+      sessionStorage.setItem("redirect-path", location.pathname + location.search + location.hash);
+      location.replace("/");
+    </script>
+  </head>
+  <body></body>
+</html>
